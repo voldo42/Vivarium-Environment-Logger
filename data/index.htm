@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>#DisplayString#</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div class="container-fluid">
+    	<div class="row">
+    		<div class="col-md-12">
+    			<div class="jumbotron">
+    				<h2>Matrix Display</h2>
+    				<p>Use this page to change the string displayed on the Matrix</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+    	<div class="row">
+    		<div class="col-md-12">
+          <div class="panel panel-default">
+            <ul class="list-group">
+              <li class="list-group-item">
+                <h3>#DisplayString# <small>String being displayed</small></h3>
+              </li>
+              <li class="list-group-item">
+
+                <form action="/" method = ‘POST’>
+                    <div class="form-group">
+                      <label for="newString">New String:</label>
+                      <input type="text" class="form-control" id="newString" placeholder="#DisplayString#" name="newString">
+                    </div>
+                    <button type="submit" class="btn btn-default">Submit</button>
+                  </form>
+
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
