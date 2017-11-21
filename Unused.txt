@@ -1,16 +1,39 @@
-/*
-    client.println("HTTP/1.1 200 OK");
-    client.println("Content-Type: text/html");
-    client.println(""); //  do not forget this one
-    client.println("<!DOCTYPE HTML>");
-    client.println("<html>");
+JsonObject &addSensorReadings(JsonObject &root)
+{
+    for(int i = 0; i < root["snakes"].size(); i++)
+    {
+        StaticJsonBuffer<2000> jsonBuffer;
 
-    client.print("Led pin is now: ");
-    client.println("<br><br>");
-    client.println("Click <a href=\"/LED=ON\">here</a> turn the LED on pin 5 ON<br>");
-    client.println("Click <a href=\"/LED=OFF\">here</a> turn the LED on pin 5 OFF<br>");
-    client.println("</html>");
-*/
+        // add temperature readings
+        JsonArray& array = root["snakes"][i].asObject().createNestedArray("temps");
+        array.add(0); // read sensors[i][0].temperature()
+        array.add(0); // read sensors[i][1].temperature()
+
+        // add humidity readings
+        JsonArray& array = root["snakes"][0].asObject().createNestedArray("humids");
+        array.add(0); // read sensors[i][0].humidity()
+        array.add(0); // read sensors[i][1].himidity()
+    }
+}
+
+
+    /*
+    See how the replace can be dynamic using config
+    for (int i = 0; i < root["snakes"].size(); i++)
+    {
+        String snake = "#" + root["snakes"][i]["name"];
+        webString.replace(snake + "Name#", root["snakes"][i]["name"]);
+        webString.replace(snake + "Type#", root["snakes"][i]["type"]);
+        webString.replace(snake + "LeftTemp#", String(xenaLeftTemp, 1)); // find easy way of referencing this
+        webString.replace(snake + "RightTemp#", String(xenaRightTemp, 1));
+        webString.replace(snake + "MinTemp#", root["snakes"][i]["tempRange"][0]);
+        webString.replace(snake + "MaxTemp#", root["snakes"][i]["tempRange"][1]);
+        webString.replace(snake + "LeftHumid#", String(xenaLeftHumid, 0));
+        webString.replace(snake + "RightHumid#", String(xenaRightHumid, 0));
+        webString.replace(snake + "MinHumid#", root["snakes"][i]["humidRange"][0]);
+        webString.replace(snake + "MaxHumid#", root["snakes"][i]["humidRange"][1]);
+    }
+    */
 
 
 /* get web page from SPIFFS and add the data
@@ -127,3 +150,18 @@ JsonObject &getConfig()
         return root;
     }
 }
+
+// working web page
+/*
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-Type: text/html");
+    client.println(""); //  do not forget this one
+    client.println("<!DOCTYPE HTML>");
+    client.println("<html>");
+
+    client.print("Led pin is now: ");
+    client.println("<br><br>");
+    client.println("Click <a href=\"/LED=ON\">here</a> turn the LED on pin 5 ON<br>");
+    client.println("Click <a href=\"/LED=OFF\">here</a> turn the LED on pin 5 OFF<br>");
+    client.println("</html>");
+*/
