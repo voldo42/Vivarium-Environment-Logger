@@ -1,0 +1,129 @@
+/*
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-Type: text/html");
+    client.println(""); //  do not forget this one
+    client.println("<!DOCTYPE HTML>");
+    client.println("<html>");
+
+    client.print("Led pin is now: ");
+    client.println("<br><br>");
+    client.println("Click <a href=\"/LED=ON\">here</a> turn the LED on pin 5 ON<br>");
+    client.println("Click <a href=\"/LED=OFF\">here</a> turn the LED on pin 5 OFF<br>");
+    client.println("</html>");
+*/
+
+
+/* get web page from SPIFFS and add the data
+ * (To be refactored. Web page will be built dynamically from config)
+ */
+String getWebPage(JsonObject &root)
+{
+    String webString = "";
+    File indexFile = SPIFFS.open(webPageFilename, "r");
+    if (!indexFile)
+    {
+        Serial.println("File not found");
+    }
+
+    webString += "HTTP/1.1 200 OK";
+    webString += "Content-Type: text/html";
+    webString += '\n';
+
+    while (indexFile.available())
+    {
+        webString += indexFile.readStringUntil('\n');
+        webString += '\n';
+    }
+
+    indexFile.close();
+
+    //Replace all placeholders
+    webString.replace("#XenaName#", root["vivariums"][0]["name"]);
+    webString.replace("#XenaType#", root["vivariums"][0]["type"]);
+    webString.replace("#XenaImage#", root["vivariums"][0]["image"]);
+    webString.replace("#XenaLeftTemp#", String(xenaLeftTemp, 1));
+    webString.replace("#XenaRightTemp#", String(xenaRightTemp, 1));
+    webString.replace("#XenaMinTemp#", root["vivariums"][0]["tempRange"][0]);
+    webString.replace("#XenaMaxTemp#", root["vivariums"][0]["tempRange"][1]);
+    webString.replace("#XenaLeftHumid#", String(xenaLeftHumid, 0));
+    webString.replace("#XenaRightHumid#", String(xenaRightHumid, 0));
+    webString.replace("#XenaMinHumid#", root["vivariums"][0]["humidRange"][0]);
+    webString.replace("#XenaMaxHumid#", root["vivariums"][0]["humidRange"][1]);
+
+    webString.replace("#HanzoName#", root["vivariums"][1]["name"]);
+    webString.replace("#HanzoType#", root["vivariums"][1]["type"]);
+    webString.replace("#HanzoImage#", root["vivariums"][1]["image"]);
+    webString.replace("#HanzoLeftTemp#", String(hanzoLeftTemp, 1));
+    webString.replace("#HanzoRightTemp#", String(hanzoRightTemp, 1));
+    webString.replace("#HanzoMinTemp#", root["vivariums"][1]["tempRange"][0]);
+    webString.replace("#HanzoMaxTemp#", root["vivariums"][1]["tempRange"][1]);
+    webString.replace("#HanzoLeftHumid#", String(hanzoLeftHumid, 0));
+    webString.replace("#HanzoRightHumid#", String(hanzoRightHumid, 0));
+    webString.replace("#HanzoMinHumid#", root["vivariums"][1]["humidRange"][0]);
+    webString.replace("#HanzoMaxHumid#", root["vivariums"][1]["humidRange"][1]);
+
+    // Io not used. Will be included in future version
+    webString.replace("#IoName#", root["vivariums"][2]["name"]);
+    webString.replace("#IoType#", root["vivariums"][2]["type"]);
+    webString.replace("#IoImage#", root["vivariums"][2]["image"]);
+    webString.replace("#IoLeftTemp#", "-");
+    webString.replace("#IoRightTemp#", "-");
+    webString.replace("#IoMinTemp#", root["vivariums"][2]["tempRange"][0]);
+    webString.replace("#IoMaxTemp#", root["vivariums"][2]["tempRange"][1]);
+    webString.replace("#IoLeftHumid#", "-");
+    webString.replace("#IoRightHumid#", "-");
+    webString.replace("#IoMinHumid#", root["vivariums"][2]["humidRange"][0]);
+    webString.replace("#IoMaxHumid#", root["vivariums"][2]["humidRange"][1]);
+
+    return webString;
+}
+
+/* get config file from SPIFFS and write to serial - use later for environment warnings
+ * set config not required. Environment variables aren't going to change */
+JsonObject &getConfig()
+{
+    // open the file in read mode
+    File file = SPIFFS.open(configFilename, "r");
+    int fileSize = file.size();
+
+    // create empty object to return
+    StaticJsonBuffer<1> jsonBuffer;
+    JsonObject &empty = jsonBuffer.createObject();
+
+    if (!file || file.size() == 0)
+    {
+        Serial.println("File not found or is empty");
+        return empty;
+    }
+    else
+    {
+        //print filename and size
+        Serial.print("Found ");
+        Serial.print(file.name());
+        Serial.print(" (");
+        Serial.print(fileSize);
+        Serial.println(" bytes)\n");
+
+        // read file and put json in char buffer
+        char json[fileSize];
+        file.readBytes(json, fileSize);
+
+        // parse json object
+        DynamicJsonBuffer jsonBuffer;
+        JsonObject &root = jsonBuffer.parseObject(json);
+        if (!root.success())
+        {
+            Serial.println("parseObject() failed");
+            return empty;
+        }
+
+        file.close();
+
+        // print object
+        Serial.println("JSON Object");
+        root.prettyPrintTo(Serial);
+        Serial.println(" ");
+
+        return root;
+    }
+}
