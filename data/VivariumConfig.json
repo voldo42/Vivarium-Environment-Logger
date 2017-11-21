@@ -1,0 +1,43 @@
+{
+    "vivariums": [
+        {
+            "name": "Xena",
+            "type": "CB11 Royal Python F",
+            "image": "https://drive.google.com/uc?export=view&id=1kbZxEsnJMUK19g4mJblVEWtqX7bxozaW",
+            "tempRange": [
+                22,
+                36
+            ],
+            "humidRange": [
+                40,
+                70
+            ]
+        },
+        {
+            "name": "Hanzo",
+            "type": "CB14 Bumblebee Royal Python M",
+            "image": "https://drive.google.com/uc?export=view&id=1feC69iz9N5tpstBQc1vBwWqaJm0fjvjq",
+            "tempRange": [
+                22,
+                36
+            ],
+            "humidRange": [
+                40,
+                70
+            ]
+        },
+        {
+            "name": "Io",
+            "type": "CB11 Bull Snake F",
+            "image": "https://drive.google.com/uc?export=view&id=1WBj09kQprXOrvF9XQljNj7eJxgZaRruq",
+            "tempRange": [
+                17,
+                30
+            ],
+            "humidRange": [
+                20,
+                80
+            ]
+        }
+    ]
+}
