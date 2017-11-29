@@ -4,41 +4,34 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <title>Vivarium Temperature Logger</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
   <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
-  <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>"
-
+  <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
 </head>
 
 <body>
-
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
         <div class="page-header">
-          <h1>
-            Vivarium Temperature Logger
-          </h1>
+          <h2>Vivarium Temperature Logger</h2>
         </div>
         <div class="tabbable" id="tabs-883075">
           <ul class="nav nav-tabs">
             <li class="active">
-              <a href="#panel-#XenaName#" data-toggle="tab">#XenaName#</a>
+              <a href="#panel-#Viv1Name#" data-toggle="tab">#Viv1Name#</a>
             </li>
             <li>
-              <a href="#panel-#HanzoName#" data-toggle="tab">#HanzoName#</a>
+              <a href="#panel-#Viv2Name#" data-toggle="tab">#Viv2Name#</a>
             </li>
             <li>
-              <a href="#panel-#IoName#" data-toggle="tab">#IoName#</a>
+              <a href="#panel-#Viv3Name#" data-toggle="tab">#Viv3Name#</a>
             </li>
           </ul>
           <div class="tab-content">
-            <div class="tab-pane active" id="panel-#XenaName#">
+            <div class="tab-pane active" id="panel-#Viv1Name#">
               <p>
                 <div class="row">
                   <div class="col-md-7">
@@ -60,10 +53,10 @@
                             <b>Temp</b>
                           </td>
                           <td>
-                            #XenaLeftTemp#&deg;C
+                            #Viv1LeftTemp#&deg;C
                           </td>
                           <td>
-                            #XenaRightTemp#&deg;C
+                            #Viv1RightTemp#&deg;C
                           </td>
                         </tr>
                         <tr class="active">
@@ -71,15 +64,14 @@
                             <b>Humidity</b>
                           </td>
                           <td>
-                            #XenaLeftHumid#%
+                            #Viv1LeftHumid#%
                           </td>
                           <td>
-                            #XenaRightHumid#%
+                            #Viv1RightHumid#%
                           </td>
                         </tr>
                       </tbody>
                     </table>
-
                     <table class="table">
                       <thead>
                         <tr>
@@ -98,10 +90,10 @@
                             <b>Temp</b>
                           </td>
                           <td>
-                            #XenaMinTemp#&deg;C
+                            #Viv1MinTemp#&deg;C
                           </td>
                           <td>
-                            #XenaMaxTemp#&deg;C
+                            #Viv1MaxTemp#&deg;C
                           </td>
                         </tr>
                         <tr>
@@ -109,22 +101,22 @@
                             <b>Humidity</b>
                           </td>
                           <td>
-                            #XenaMinHumid#%
+                            #Viv1MinHumid#%
                           </td>
                           <td>
-                            #XenaMaxHumid#%
+                            #Viv1MaxHumid#%
                           </td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                   <div class="col-md-3">
-                    <img alt="#XenaName# Image" src="#XenaImage#">
+                    <img alt="#Viv1Name# Image" src="#Viv1Image#" class="img-responsive">
                   </div>
                 </div>
               </p>
             </div>
-            <div class="tab-pane" id="panel-#HanzoName#">
+            <div class="tab-pane" id="panel-#Viv2Name#">
               <p>
                 <div class="row">
                   <div class="col-md-7">
@@ -146,10 +138,10 @@
                             <b>Temp</b>
                           </td>
                           <td>
-                            #HanzoLeftTemp#&deg;C
+                            #Viv2LeftTemp#&deg;C
                           </td>
                           <td>
-                            #HanzoRightTemp#&deg;C
+                            #Viv2RightTemp#&deg;C
                           </td>
                         </tr>
                         <tr class="active">
@@ -157,15 +149,14 @@
                             <b>Humidity</b>
                           </td>
                           <td>
-                            #HanzoLeftHumid#%
+                            #Viv2LeftHumid#%
                           </td>
                           <td>
-                            #HanzoRightHumid#%
+                            #Viv2RightHumid#%
                           </td>
                         </tr>
                       </tbody>
                     </table>
-
                     <table class="table">
                       <thead>
                         <tr>
@@ -184,10 +175,10 @@
                             <b>Temp</b>
                           </td>
                           <td>
-                            #HanzoMinTemp#&deg;C
+                            #Viv2MinTemp#&deg;C
                           </td>
                           <td>
-                            #HanzoMaxTemp#&deg;C
+                            #Viv2MaxTemp#&deg;C
                           </td>
                         </tr>
                         <tr>
@@ -195,22 +186,22 @@
                             <b>Humidity</b>
                           </td>
                           <td>
-                            #HanzoMinHumid#%
+                            #Viv2MinHumid#%
                           </td>
                           <td>
-                            #HanzoMaxHumid#%
+                            #Viv2MaxHumid#%
                           </td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                   <div class="col-md-3">
-                    <img alt="#HanzoName# Image" src="#HanzoImage#">
+                    <img alt="#Viv2Name# Image" src="#Viv2Image#" class="img-responsive">
                   </div>
                 </div>
               </p>
             </div>
-            <div class="tab-pane" id="panel-#IoName#">
+            <div class="tab-pane" id="panel-#Viv3Name#">
               <p>
                 <p>
                   <div class="row">
@@ -233,10 +224,10 @@
                               <b>Temp</b>
                             </td>
                             <td>
-                              #IoLeftTemp#&deg;C
+                              #Viv3LeftTemp#&deg;C
                             </td>
                             <td>
-                              #IoRightTemp#&deg;C
+                              #Viv3RightTemp#&deg;C
                             </td>
                           </tr>
                           <tr class="active">
@@ -244,15 +235,14 @@
                               <b>Humidity</b>
                             </td>
                             <td>
-                              #IoLeftHumid#%
+                              #Viv3LeftHumid#%
                             </td>
                             <td>
-                              #IoRightHumid#%
+                              #Viv3RightHumid#%
                             </td>
                           </tr>
                         </tbody>
                       </table>
-
                       <table class="table">
                         <thead>
                           <tr>
@@ -271,10 +261,10 @@
                               <b>Temp</b>
                             </td>
                             <td>
-                              #IoMinTemp#&deg;C
+                              #Viv3MinTemp#&deg;C
                             </td>
                             <td>
-                              #IoMaxTemp#&deg;C
+                              #Viv3MaxTemp#&deg;C
                             </td>
                           </tr>
                           <tr>
@@ -282,17 +272,17 @@
                               <b>Humidity</b>
                             </td>
                             <td>
-                              #IoMinHumid#%
+                              #Viv3MinHumid#%
                             </td>
                             <td>
-                              #IoMaxHumid#%
+                              #Viv3MaxHumid#%
                             </td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
                     <div class="col-md-3">
-                      <img alt="#IoName# Image" src="#IoImage#">
+                      <img alt="#Viv3Name# Image" src="#Viv3Image#" class="img-responsive">
                     </div>
                   </div>
                 </p>

@@ -2,275 +2,230 @@
 #include <ESP8266WiFi.h>
 #include <FS.h>
 #include <ArduinoJson.h>
-#include <Adafruit_Sensor.h>
-#include <DHT.h>
-#include <DHT_U.h>
 #include <LiquidCrystal_I2C.h>
-
-#define DHTTYPE DHT22
-
-DHT_Unified viv1LeftSensor(D5, DHTTYPE);
-DHT_Unified viv1RightSensor(D6, DHTTYPE);
-DHT_Unified viv2LeftSensor(D7, DHTTYPE);
-DHT_Unified viv2RightSensor(D8, DHTTYPE);
+#include <DHT.h>
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
-const char *ssid = "SKY8368B";
-const char *password = "AWFPXTQV";
+DHT viv1LeftSensor;
+DHT viv1RightSensor;
+DHT viv2LeftSensor;
+DHT viv2RightSensor;
+
+float viv1LeftTemp = 0;
+float viv1RightTemp = 0;
+float viv1LeftHumid = 0;
+float viv1RightHumid = 0;
+
+float viv2LeftTemp = 0;
+float viv2RightTemp = 0;
+float viv2LeftHumid = 0;
+float viv2RightHumid = 0;
 
 WiFiServer server(80);
 
-// this will be refactored out
-float xenaLeftTemp = 0;
-float xenaRightTemp = 0;
-float xenaLeftHumid = 0;
-float xenaRightHumid = 0;
-
-float hanzoLeftTemp = 0;
-float hanzoRightTemp = 0;
-float hanzoLeftHumid = 0;
-float hanzoRightHumid = 0;
-
+const char *ssid = "SKY8368B";
+const char *password = "AWFPXTQV";
 const char *configFilename = "/VivariumConfig.json";
 const char *webPageFilename = "/index.htm";
 
 // connect to wifi
 void connectToWifi()
 {
+    WiFi.begin(ssid, password);
+
     while (WiFi.status() != WL_CONNECTED)
     {
         delay(500);
         Serial.print(".");
     }
 
+    // start web server
     server.begin();
-
-    // Print the IP address
-    Serial.print("http://");
-    Serial.print(WiFi.localIP());
+    Serial.println("http://" + WiFi.localIP());
 }
 
-// get sensor readings and set variables (To be refactored)
+// get sensor readings and set variables
 void setSensorReadings()
 {
-    // create reusable sensor event
-    sensors_event_t event;
-    Serial.println("Sensor Readings");
+    // Vivarium 1 left sensor
+    viv1LeftTemp = viv1LeftSensor.getTemperature();
+    Serial.println(viv1LeftTemp);
 
-    viv1LeftSensor.temperature().getEvent(&event);
-    xenaLeftTemp = event.temperature;
-    Serial.print(xenaLeftTemp, 1);
-    Serial.print("C ");
+    viv1LeftHumid = viv1LeftSensor.getHumidity();
+    Serial.println(viv1LeftHumid);
 
-    viv1LeftSensor.humidity().getEvent(&event);
-    xenaLeftHumid = event.relative_humidity;
-    Serial.print(xenaLeftHumid, 0);
-    Serial.print("% ");
+    // Vivarium 1 right sensor
+    viv1RightTemp = viv1RightSensor.getTemperature();
+    Serial.println(viv1RightTemp);
 
-    // Xena right sensor
-    viv1RightSensor.temperature().getEvent(&event);
-    xenaRightTemp = event.temperature;
-    Serial.print(xenaRightTemp, 1);
-    Serial.print("C ");
+    viv1RightHumid = viv1RightSensor.getHumidity();
+    Serial.println(viv1RightHumid);
 
-    viv1RightSensor.humidity().getEvent(&event);
-    xenaRightHumid = event.relative_humidity;
-    Serial.print(xenaRightHumid, 0);
-    Serial.print("% ");
+    // Vivarium 2 left sensor
+    viv2LeftTemp = viv2LeftSensor.getTemperature();
+    Serial.println(viv2LeftTemp);
 
-    // Hanzo left sensor
-    viv2LeftSensor.temperature().getEvent(&event);
-    hanzoLeftTemp = event.temperature;
-    Serial.print(hanzoLeftTemp, 1);
-    Serial.print("C ");
+    viv2LeftHumid = viv2LeftSensor.getHumidity();
+    Serial.println(viv2LeftHumid);
 
-    viv2LeftSensor.humidity().getEvent(&event);
-    hanzoLeftHumid = event.relative_humidity;
-    Serial.print(hanzoLeftHumid, 0);
-    Serial.print("% ");
+    // Vivarium 3 right sensor
+    viv2RightTemp = viv2RightSensor.getTemperature();
+    Serial.println(viv2RightTemp);
 
-    // Hanzo right sensor
-    viv2RightSensor.temperature().getEvent(&event);
-    hanzoRightTemp = event.temperature;
-    Serial.print(hanzoRightTemp, 1);
-    Serial.print("C ");
+    viv2RightHumid = viv2RightSensor.getHumidity();
+    Serial.println(viv2RightHumid);
 
-    viv2RightSensor.humidity().getEvent(&event);
-    hanzoRightHumid = event.relative_humidity;
-    Serial.print(hanzoRightHumid, 0);
-    Serial.println("%\n");
-
-    // No Io sensors. These will be called from another web server in future version
+    // Additional sensor readings can be added here
 }
 
-// print sensor readings to 20x4 LCD screen (To be refactored)
+// print sensor readings to 20x4 LCD screen
+// need to replace snake names with config values
 void printSensorReadings()
 {
-    // degree symbol is 0xdf or 223 decimal or 337 octal or 377 octal
-    String line1 = "Xena  L: " + String(xenaLeftTemp, 1) + "\337C " + String(xenaLeftHumid, 0) + "%";
-    String line2 = "      R: " + String(xenaRightTemp, 1) + "\337C " + String(xenaRightHumid, 0) + "%";
-    String line3 = "Hanzo L: " + String(hanzoLeftTemp, 1) + "\337C " + String(hanzoLeftHumid, 0) + "%";
-    String line4 = "      R: " + String(hanzoRightTemp, 1) + "\337C " + String(hanzoRightHumid, 0) + "%";
-
+    // \337 is the degree symbol
     lcd.setCursor(0, 0);
-    lcd.print(line1);
+    lcd.print("Xena  L: " + String(viv1LeftTemp, 1) + "\337C " + String(viv1LeftHumid, 0) + "%");
     lcd.setCursor(0, 1);
-    lcd.print(line2);
+    lcd.print("      R: " + String(viv1RightTemp, 1) + "\337C " + String(viv1RightHumid, 0) + "%");
     lcd.setCursor(0, 2);
-    lcd.print(line3);
+    lcd.print("Hanzo L: " + String(viv2LeftTemp, 1) + "\337C " + String(viv2LeftHumid, 0) + "%");
     lcd.setCursor(0, 3);
-    lcd.print(line4);
+    lcd.print("      R: " + String(viv2RightTemp, 1) + "\337C " + String(viv2RightHumid, 0) + "%");
 }
 
-String getWebPage()
+// generate web page and send to client (need to refactor the config out of this)
+void sendWebPage(WiFiClient client)
 {
-    String webString = "";
-
     // open the file in read mode
-    File file = SPIFFS.open(configFilename, "r");
-    int fileSize = file.size();
-
-    // create empty object to return
-    StaticJsonBuffer<1> jsonBuffer;
-    JsonObject &empty = jsonBuffer.createObject();
-
-    if (!file || file.size() == 0)
+    File configFile = SPIFFS.open(configFilename, "r");
+    if (!configFile)
     {
         Serial.println("File not found or is empty");
-        return "";
+        return;
     }
-    else
+
+    //print filename
+    Serial.print("Found ");
+    Serial.print(configFile.name());
+
+    // read file and put json in char buffer
+    char json[2000];
+    configFile.readBytes(json, configFile.size());
+    configFile.close();
+
+    // parse json object
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject &root = jsonBuffer.parseObject(json);
+    if (!root.success())
     {
-        //print filename and size
-        Serial.print("Found ");
-        Serial.print(file.name());
-        Serial.print(" (");
-        Serial.print(fileSize);
-        Serial.println(" bytes)\n");
+        Serial.println("parseObject() failed");
+        return;
+    }
+    // print object
+    //root.prettyPrintTo(Serial);
 
-        // read file and put json in char buffer
-        char json[2000];
-        file.readBytes(json, fileSize);
-
-        // parse json object
-        DynamicJsonBuffer jsonBuffer;
-        JsonObject &root = jsonBuffer.parseObject(json);
-        if (!root.success())
-        {
-            Serial.println("parseObject() failed");
-            return "";
-        }
-
-        file.close();
-
-        // print object
-        Serial.println("JSON Object");
-        root.prettyPrintTo(Serial);
-        Serial.println(" ");
-
-        File indexFile = SPIFFS.open(webPageFilename, "r");
-        if (!indexFile)
-        {
-            Serial.println("File not found");
-            return "";
-        }
-        else
-        {
-            //print filename and size
-            Serial.print("Found ");
-            Serial.print(indexFile.name());
-            Serial.print(" (");
-            Serial.print(indexFile.size());
-            Serial.println(" bytes)\n");
-        }
-
-        webString += "HTTP/1.1 200 OK";
-        webString += '\n';
-        webString += "Content-Type: text/html";
-        webString += '\n';
-
-        while (indexFile.available())
-        {
-            webString += indexFile.readStringUntil('\n');
-            webString += '\n';
-        }
-
-        indexFile.close();
-
-        //Replace all placeholders
-        webString.replace("#XenaName#", root["vivariums"][0]["name"]);
-        webString.replace("#XenaType#", root["vivariums"][0]["type"]);
-        webString.replace("#XenaImage#", root["vivariums"][0]["image"]);
-        webString.replace("#XenaLeftTemp#", String(xenaLeftTemp, 1));
-        webString.replace("#XenaRightTemp#", String(xenaRightTemp, 1));
-        webString.replace("#XenaMinTemp#", root["vivariums"][0]["tempRange"][0]);
-        webString.replace("#XenaMaxTemp#", root["vivariums"][0]["tempRange"][1]);
-        webString.replace("#XenaLeftHumid#", String(xenaLeftHumid, 0));
-        webString.replace("#XenaRightHumid#", String(xenaRightHumid, 0));
-        webString.replace("#XenaMinHumid#", root["vivariums"][0]["humidRange"][0]);
-        webString.replace("#XenaMaxHumid#", root["vivariums"][0]["humidRange"][1]);
-
-        webString.replace("#HanzoName#", root["vivariums"][1]["name"]);
-        webString.replace("#HanzoType#", root["vivariums"][1]["type"]);
-        webString.replace("#HanzoImage#", root["vivariums"][1]["image"]);
-        webString.replace("#HanzoLeftTemp#", String(hanzoLeftTemp, 1));
-        webString.replace("#HanzoRightTemp#", String(hanzoRightTemp, 1));
-        webString.replace("#HanzoMinTemp#", root["vivariums"][1]["tempRange"][0]);
-        webString.replace("#HanzoMaxTemp#", root["vivariums"][1]["tempRange"][1]);
-        webString.replace("#HanzoLeftHumid#", String(hanzoLeftHumid, 0));
-        webString.replace("#HanzoRightHumid#", String(hanzoRightHumid, 0));
-        webString.replace("#HanzoMinHumid#", root["vivariums"][1]["humidRange"][0]);
-        webString.replace("#HanzoMaxHumid#", root["vivariums"][1]["humidRange"][1]);
-
-        // Io not used. Will be included in future version
-        webString.replace("#IoName#", root["vivariums"][2]["name"]);
-        webString.replace("#IoType#", root["vivariums"][2]["type"]);
-        webString.replace("#IoImage#", root["vivariums"][2]["image"]);
-        webString.replace("#IoLeftTemp#", "-");
-        webString.replace("#IoRightTemp#", "-");
-        webString.replace("#IoMinTemp#", root["vivariums"][2]["tempRange"][0]);
-        webString.replace("#IoMaxTemp#", root["vivariums"][2]["tempRange"][1]);
-        webString.replace("#IoLeftHumid#", "-");
-        webString.replace("#IoRightHumid#", "-");
-        webString.replace("#IoMinHumid#", root["vivariums"][2]["humidRange"][0]);
-        webString.replace("#IoMaxHumid#", root["vivariums"][2]["humidRange"][1]);
+    File indexFile = SPIFFS.open(webPageFilename, "r");
+    if (!indexFile)
+    {
+        Serial.println("File not found");
+        return;
     }
 
-    return webString;
+    //print filename
+    Serial.print("Found ");
+    Serial.print(indexFile.name());
+
+    // wait for client and then send response
+    client.flush();
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-Type: text/html");
+
+    while (indexFile.available())
+    {
+        String webString = indexFile.readStringUntil('\n');
+        client.println(webString);
+        Serial.print(webString);
+    }
+
+    indexFile.close();
+}
+
+// replace placeholders in page with environment values
+String replaceAllPlaceholders(String page, JsonObject values)
+{
+    page.replace("#Viv1Name#", values["vivariums"][0]["name"]);
+    page.replace("#Viv1Type#", values["vivariums"][0]["type"]);
+    page.replace("#Viv1Image#", values["vivariums"][0]["image"]);
+    page.replace("#Viv1LeftTemp#", String(viv1LeftTemp, 1));
+    page.replace("#Viv1RightTemp#", String(viv1RightTemp, 1));
+    page.replace("#Viv1MinTemp#", values["vivariums"][0]["tempRange"][0]);
+    page.replace("#Viv1MaxTemp#", values["vivariums"][0]["tempRange"][1]);
+    page.replace("#Viv1LeftHumid#", String(viv1LeftHumid, 0));
+    page.replace("#Viv1RightHumid#", String(viv1RightHumid, 0));
+    page.replace("#Viv1MinHumid#", values["vivariums"][0]["humidRange"][0]);
+    page.replace("#Viv1MaxHumid#", values["vivariums"][0]["humidRange"][1]);
+
+    page.replace("#Viv2Name#", values["vivariums"][1]["name"]);
+    page.replace("#Viv2Type#", values["vivariums"][1]["type"]);
+    page.replace("#Viv2Image#", values["vivariums"][1]["image"]);
+    page.replace("#Viv2LeftTemp#", String(viv2LeftTemp, 1));
+    page.replace("#Viv2RightTemp#", String(viv2RightTemp, 1));
+    page.replace("#Viv2MinTemp#", values["vivariums"][1]["tempRange"][0]);
+    page.replace("#Viv2MaxTemp#", values["vivariums"][1]["tempRange"][1]);
+    page.replace("#Viv2LeftHumid#", String(viv2LeftHumid, 0));
+    page.replace("#Viv2RightHumid#", String(viv2RightHumid, 0));
+    page.replace("#Viv2MinHumid#", values["vivariums"][1]["humidRange"][0]);
+    page.replace("#Viv2MaxHumid#", values["vivariums"][1]["humidRange"][1]);
+
+    // Io not used. Will be included in future version. Return default values
+    page.replace("#Viv3Name#", values["vivariums"][2]["name"]);
+    page.replace("#Viv3Type#", values["vivariums"][2]["type"]);
+    page.replace("#Viv3Image#", values["vivariums"][2]["image"]);
+    page.replace("#Viv3LeftTemp#", "-");
+    page.replace("#Viv3RightTemp#", "-");
+    page.replace("#Viv3MinTemp#", values["vivariums"][2]["tempRange"][0]);
+    page.replace("#Viv3MaxTemp#", values["vivariums"][2]["tempRange"][1]);
+    page.replace("#Viv3LeftHumid#", "-");
+    page.replace("#Viv3RightHumid#", "-");
+    page.replace("#Viv3MinHumid#", values["vivariums"][2]["humidRange"][0]);
+    page.replace("#Viv3MaxHumid#", values["vivariums"][2]["humidRange"][1]);
+
+    return page;
 }
 
 void setup()
 {
     Serial.begin(115200);
 
+    // connect to wifi
     Serial.println("Connecting to wifi");
-    WiFi.begin(ssid, password);
     connectToWifi();
-    Serial.println("Connected");
 
     // turn on LCD
     lcd.init();
     lcd.backlight();
-
-    // get sensor readings and print on LCD
-    //setSensorReadings(); // need sensors!
-    printSensorReadings();
 
     // mount file system
     SPIFFS.begin();
     //SPIFFS.format();
 
     // start sensors
-    viv1LeftSensor.begin();
-    viv1RightSensor.begin();
-    viv2LeftSensor.begin();
-    viv2RightSensor.begin();
+    viv1LeftSensor.setup(0);   // D3
+    viv1RightSensor.setup(2);  // D4
+    viv2LeftSensor.setup(14);  // D5
+    viv2RightSensor.setup(13); // D7
 }
 
 void loop()
 {
-    // get sensor readings and print on LCD
+    // reconnect to wifi if necessary
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        connectToWifi();
+    }
+
+    // get sensor readings and print on LCD - set on timer
     //setSensorReadings();
     printSensorReadings();
 
@@ -286,18 +241,7 @@ void loop()
             delay(1);
         }
 
-        // Read the first line of the request
-        String request = client.readStringUntil('\r');
-        Serial.println(request);
-        client.flush();
-
-        // get web page and return
-        String pageContent = getWebPage();
-        client.print(pageContent);
-
-        /* this last part returns only part of the page
-         * the client.print method has a limit on the string
-         * that is passed to it
-         */
+        // send web page to client
+        sendWebPage(client);
     }
 }
