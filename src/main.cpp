@@ -4,6 +4,7 @@
 #include <ArduinoJson.h>
 #include <LiquidCrystal_I2C.h>
 #include <DHT.h>
+#include <elapsedMillis.h>
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
@@ -29,9 +30,14 @@ const char *password = "AWFPXTQV";
 const char *configFilename = "/VivariumConfig.json";
 const char *webPageFilename = "/index.htm";
 
+// sensor update interval (5 seconds)
+unsigned int interval = 5000;
+elapsedMillis timeElapsed;
+
 // connect to wifi
 void connectToWifi()
 {
+    Serial.println("Connecting to wifi");
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED)
@@ -198,8 +204,6 @@ void setup()
 {
     Serial.begin(115200);
 
-    // connect to wifi
-    Serial.println("Connecting to wifi");
     connectToWifi();
 
     // turn on LCD
@@ -225,9 +229,13 @@ void loop()
         connectToWifi();
     }
 
-    // get sensor readings and print on LCD - set on timer
-    //setSensorReadings();
-    printSensorReadings();
+    // get sensor readings and print on LCD
+    if (timeElapsed > interval)
+    {
+        //setSensorReadings();
+        printSensorReadings();
+        timeElapsed = 0; // reset the counter
+    }
 
     // Check if a client has connected
     WiFiClient client = server.available();
