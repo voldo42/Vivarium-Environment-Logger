@@ -204,8 +204,6 @@ void setup()
 {
     Serial.begin(115200);
 
-    connectToWifi();
-
     // turn on LCD
     lcd.init();
     lcd.backlight();
